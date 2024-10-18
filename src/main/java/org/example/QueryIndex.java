@@ -9,6 +9,7 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.similarities.BM25Similarity;
 import org.apache.lucene.search.similarities.ClassicSimilarity;
+import org.apache.lucene.search.similarities.LMDirichletSimilarity;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.document.Document;
 
@@ -37,7 +38,7 @@ public class QueryIndex {
         // 切换评分模型 (BM25 或 ClassicSimilarity)
         boolean useBM25 = true;  // 使用BM25
         if (useBM25) {
-            isearcher.setSimilarity(new BM25Similarity());
+            isearcher.setSimilarity(new BM25Similarity(3.3f, 0.8f));
         } else {
             isearcher.setSimilarity(new ClassicSimilarity());
         }
