@@ -1,6 +1,6 @@
 package org.example;
 
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StringField;
@@ -12,7 +12,6 @@ import org.apache.lucene.store.FSDirectory;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class CreateIndex {
@@ -20,7 +19,7 @@ public class CreateIndex {
     private static final String INDEX_DIRECTORY = "index";  // 索引存储目录
 
     public static void main(String[] args) throws IOException {
-        StandardAnalyzer analyzer = new StandardAnalyzer();
+        EnglishAnalyzer analyzer = new EnglishAnalyzer();
         FSDirectory directory = FSDirectory.open(Paths.get(INDEX_DIRECTORY));
         IndexWriterConfig config = new IndexWriterConfig(analyzer);
         config.setOpenMode(IndexWriterConfig.OpenMode.CREATE);  // 创建新索引

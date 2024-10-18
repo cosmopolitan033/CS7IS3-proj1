@@ -1,12 +1,12 @@
 package org.example;
 
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.similarities.BM25Similarity;
 import org.apache.lucene.search.similarities.ClassicSimilarity;
 import org.apache.lucene.store.FSDirectory;
@@ -32,10 +32,10 @@ public class QueryIndex {
         FSDirectory directory = FSDirectory.open(Paths.get(INDEX_DIRECTORY));
         DirectoryReader ireader = DirectoryReader.open(directory);
         IndexSearcher isearcher = new IndexSearcher(ireader);
-        StandardAnalyzer analyzer = new StandardAnalyzer();
+        EnglishAnalyzer analyzer = new EnglishAnalyzer();
 
         // 切换评分模型 (BM25 或 ClassicSimilarity)
-        boolean useBM25 = true;  // 设置为 false 切换到向量空间模型
+        boolean useBM25 = true;  // 使用BM25
         if (useBM25) {
             isearcher.setSimilarity(new BM25Similarity());
         } else {
