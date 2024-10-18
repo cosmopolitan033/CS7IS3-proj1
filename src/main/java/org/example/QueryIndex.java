@@ -25,7 +25,6 @@ import java.util.List;
 public class QueryIndex {
 
     private static final String INDEX_DIRECTORY = "index";  // 索引目录
-    private static final String RESULTS_FILE = "results/query_results.txt";  // 查询结果输出文件
     private static final String QUERY_FILE = "data/cran.qry";  // 查询文件路径
     private static final int MAX_RESULTS = 50;  // 查询返回的最大结果数
 
@@ -35,23 +34,48 @@ public class QueryIndex {
         IndexSearcher isearcher = new IndexSearcher(ireader);
         EnglishAnalyzer analyzer = new EnglishAnalyzer();
 
-        // 切换评分模型 (BM25 或 ClassicSimilarity)
-        boolean useBM25 = true;  // 使用BM25
-        if (useBM25) {
-            isearcher.setSimilarity(new BM25Similarity(3.3f, 0.8f));
-        } else {
-            isearcher.setSimilarity(new ClassicSimilarity());
-        }
-
         // 确保 results 目录存在
         File resultsDir = new File("results");
         if (!resultsDir.exists()) {
             resultsDir.mkdirs();  // 如果 results 目录不存在，创建它
         }
 
+        // 解析查询文件
         List<String> queries = parseQueryFile(QUERY_FILE);
 
-        BufferedWriter writer = new BufferedWriter(new FileWriter(RESULTS_FILE));
+        // 使用不同的评分模型进行搜索
+        runWithBM25(isearcher, analyzer, queries, 3.3f, 0.8f);
+        runWithClassicSimilarity(isearcher, analyzer, queries);
+        runWithLMDirichlet(isearcher, analyzer, queries, 1500);
+        runWithLMDirichlet(isearcher, analyzer, queries, 2000);
+
+        ireader.close();
+    }
+
+    // 运行BM25模型
+    private static void runWithBM25(IndexSearcher isearcher, EnglishAnalyzer analyzer, List<String> queries, float k1, float b) throws Exception {
+        isearcher.setSimilarity(new BM25Similarity(k1, b));
+        String resultFilename = "results/query_results_bm25_" + k1 + "_" + b + ".txt";
+        searchAndWriteResults(isearcher, analyzer, queries, resultFilename);
+    }
+
+    // 运行ClassicSimilarity (TF-IDF模型)
+    private static void runWithClassicSimilarity(IndexSearcher isearcher, EnglishAnalyzer analyzer, List<String> queries) throws Exception {
+        isearcher.setSimilarity(new ClassicSimilarity());
+        String resultFilename = "results/query_results_classic.txt";
+        searchAndWriteResults(isearcher, analyzer, queries, resultFilename);
+    }
+
+    // 运行LMDirichlet模型
+    private static void runWithLMDirichlet(IndexSearcher isearcher, EnglishAnalyzer analyzer, List<String> queries, float mu) throws Exception {
+        isearcher.setSimilarity(new LMDirichletSimilarity(mu));
+        String resultFilename = "results/query_results_lmdirichlet_" + mu + ".txt";
+        searchAndWriteResults(isearcher, analyzer, queries, resultFilename);
+    }
+
+    // 通用的搜索方法，执行查询并将结果写入文件
+    private static void searchAndWriteResults(IndexSearcher isearcher, EnglishAnalyzer analyzer, List<String> queries, String resultFilename) throws Exception {
+        BufferedWriter writer = new BufferedWriter(new FileWriter(resultFilename));
         QueryParser parser = new QueryParser("content", analyzer);
         parser.setAllowLeadingWildcard(false);  // 禁用前导通配符
 
@@ -72,7 +96,7 @@ public class QueryIndex {
             }
         }
         writer.close();
-        ireader.close();
+        System.out.println("Results written to: " + resultFilename);
     }
 
     // 解析查询文件 cran.qry
