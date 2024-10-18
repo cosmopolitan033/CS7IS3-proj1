@@ -16,16 +16,15 @@ import java.nio.file.Paths;
 
 public class CreateIndex {
 
-    private static final String INDEX_DIRECTORY = "index";  // 索引存储目录
+    private static final String INDEX_DIRECTORY = "index";
 
     public static void main(String[] args) throws IOException {
         EnglishAnalyzer analyzer = new EnglishAnalyzer();
         FSDirectory directory = FSDirectory.open(Paths.get(INDEX_DIRECTORY));
         IndexWriterConfig config = new IndexWriterConfig(analyzer);
-        config.setOpenMode(IndexWriterConfig.OpenMode.CREATE);  // 创建新索引
+        config.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
         IndexWriter iwriter = new IndexWriter(directory, config);
 
-        // 读取Cranfield Collection文档并索引
         BufferedReader reader = new BufferedReader(new FileReader("data/cran.all.1400"));
         String line;
         Document doc = null;
@@ -40,7 +39,7 @@ public class CreateIndex {
                 doc.add(new StringField("filename", line.substring(3).trim(), Field.Store.YES));
                 content = new StringBuilder();
             } else if (line.startsWith(".W")) {
-                content = new StringBuilder();  // 重置内容部分
+                content = new StringBuilder();
             } else {
                 content.append(line).append(" ");
             }
