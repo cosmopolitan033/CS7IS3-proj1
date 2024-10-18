@@ -60,9 +60,11 @@ public class QueryIndex {
                 Query query = parser.parse(processedQuery.trim());
                 TopDocs results = isearcher.search(query, MAX_RESULTS);
 
+                int rank = 1;  // 初始化排名
                 for (ScoreDoc hit : results.scoreDocs) {
                     Document hitDoc = isearcher.doc(hit.doc);
-                    writer.write("Query ID: " + (i + 1) + ", Doc ID: " + hitDoc.get("filename") + ", Score: " + hit.score + "\n");
+                    // 将结果转换为TREC Eval格式
+                    writer.write((i + 1) + " Q0 " + hitDoc.get("filename") + " " + rank++ + " " + hit.score + " STANDARD\n");
                 }
             } catch (Exception e) {
                 System.err.println("Error parsing query " + (i + 1) + ": " + e.getMessage());
